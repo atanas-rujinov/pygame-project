@@ -30,6 +30,18 @@ class Object:
         self.x = x
         self.y = y
         self.type = type
+        if type == "bomb":
+            self.color = (100, 100, 100)
+        elif type == "trash":
+            self.color = (255, 100, 0)
+        else:
+            self.color = (0, 255, 0)
+
+def checkCollision(object):
+    if playerX < object.x + OBJECT_WIDTH and playerX + PLAYER_WIDTH > object.x and SCREEN_HEIGHT - PLAYER_BOTTOM - PLAYER_HEIGHT < object.y + OBJECT_HEIGHT and SCREEN_HEIGHT - PLAYER_BOTTOM > object.y:
+        return True
+    else:
+        return False
 
 objects = []
 print(ACTUAL_HEIGHT / (OBJECTS_DISTANCE+OBJECT_HEIGHT))
@@ -76,14 +88,13 @@ while running:
     SCREEN.fill((0, 0, 0))
 
     for object in objects:
-        if object.type == "bomb":
-            pygame.draw.rect(SCREEN, (255, 0, 0), (object.x, object.y, OBJECT_WIDTH, OBJECT_HEIGHT))
-        elif object.type == "trash":
-            pygame.draw.rect(SCREEN, (255, 255, 255), (object.x, object.y, OBJECT_WIDTH, OBJECT_HEIGHT))
-        else:
-            pygame.draw.rect(SCREEN, (0, 255, 0), (object.x, object.y, OBJECT_WIDTH, OBJECT_HEIGHT))
+        pygame.draw.rect(SCREEN, object.color, (object.x, object.y, OBJECT_WIDTH, OBJECT_HEIGHT))
         object.y += OBJECT_SPEED
         
+        if checkCollision(object):
+            #golden
+            object.color = (255, 255, 0)
+
         if object.y >= SCREEN_HEIGHT:
             objects.remove(object)
             type = random.randint(0, 2)
@@ -95,7 +106,6 @@ while running:
                 type = "fruit"
             objects.append(Object(random.randint(0, SCREEN_WIDTH - OBJECT_WIDTH), 0 - OBJECT_HEIGHT, type))
 
-    
     
     pygame.draw.rect(SCREEN, (255, 0, 0), (playerX, SCREEN_HEIGHT-PLAYER_HEIGHT-PLAYER_BOTTOM, 50, 75))
     pygame.display.update()
