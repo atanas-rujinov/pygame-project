@@ -17,13 +17,14 @@ OBJECT_SPEED = 0.1
 OBJECTS_DISTANCE = 200
 ACTUAL_HEIGHT = SCREEN_HEIGHT - PLAYER_BOTTOM - PLAYER_HEIGHT
 
+score = 0
+
 playerX = SCREEN_WIDTH / 2 - PLAYER_WIDTH / 2
 running = True
 goingLeft = False
 goingRight = False
 directionPriority = ""
-timeForNewObject = time.time()
-print(timeForNewObject)
+playerImage = pygame.image.load("opened.png")
 
 class Object:
     def __init__(self, x, y, type):
@@ -36,6 +37,9 @@ class Object:
             self.color = (255, 100, 0)
         else:
             self.color = (0, 255, 0)
+
+armState = "opened"
+armStateTimestamp = time.time()
 
 def checkCollision(object):
     if playerX < object.x + OBJECT_WIDTH and playerX + PLAYER_WIDTH > object.x and SCREEN_HEIGHT - PLAYER_BOTTOM - PLAYER_HEIGHT < object.y + OBJECT_HEIGHT and SCREEN_HEIGHT - PLAYER_BOTTOM > object.y:
@@ -67,6 +71,14 @@ while running:
             elif event.key == pygame.K_RIGHT:
                 goingRight = True
                 directionPriority = "right"
+            elif event.key == pygame.K_DOWN:
+                armState = "closed"
+                playerImage = pygame.image.load("closed.png")
+                armStateTimestamp = time.time()
+            elif event.key == pygame.K_UP:
+                armState = "fire"
+                playerImage = pygame.image.load("fire.png")
+                armStateTimestamp = time.time()
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 goingLeft = False
@@ -85,6 +97,10 @@ while running:
         elif goingLeft:
             playerX -= PLAYER_SPEED
     
+    if time.time() > armStateTimestamp + 1:
+        armState = "opened"
+        playerImage = pygame.image.load("opened.png")
+
     SCREEN.fill((0, 0, 0))
 
     for object in objects:
@@ -92,9 +108,37 @@ while running:
         object.y += OBJECT_SPEED
         
         if checkCollision(object):
-            #golden
-            object.color = (255, 255, 0)
-
+            if object.type == "trash":
+                if armState == "fire":
+                    type = random.randint(0, 2)
+                    if type == 0:
+                        type = "bomb"
+                    elif type == 1:
+                       type = "trash"
+                    else:
+                       type = "fruit"
+                    objects.append(Object(random.randint(0, SCREEN_WIDTH - OBJECT_WIDTH), 0 - OBJECT_HEIGHT - (SCREEN_HEIGHT-object.y), type))
+                    objects.remove(object)
+                    score += 2
+                else:
+                    score -= 1
+            elif object.type == "bomb":
+                running = False
+            else:
+                if armState == "closed":
+                    type = random.randint(0, 2)
+                    if type == 0:
+                        type = "bomb"
+                    elif type == 1:
+                       type = "trash"
+                    else:
+                       type = "fruit"
+                    objects.append(Object(random.randint(0, SCREEN_WIDTH - OBJECT_WIDTH), 0 - OBJECT_HEIGHT - (SCREEN_HEIGHT-object.y), type))
+                    objects.remove(object)
+                    score += 2
+                else:
+                    score -= 1
+          #  objects.remove(object)
         if object.y >= SCREEN_HEIGHT:
             objects.remove(object)
             type = random.randint(0, 2)
@@ -107,5 +151,8 @@ while running:
             objects.append(Object(random.randint(0, SCREEN_WIDTH - OBJECT_WIDTH), 0 - OBJECT_HEIGHT, type))
 
     
-    pygame.draw.rect(SCREEN, (255, 0, 0), (playerX, SCREEN_HEIGHT-PLAYER_HEIGHT-PLAYER_BOTTOM, 50, 75))
+    SCREEN.blit(playerImage, (playerX, SCREEN_HEIGHT-PLAYER_HEIGHT-PLAYER_BOTTOM))
+   # pygame.draw.rect(SCREEN, (255, 0, 0), (playerX, SCREEN_HEIGHT-PLAYER_HEIGHT-PLAYER_BOTTOM, 50, 75))
+    pygame.draw.rect(SCREEN, (255,255,255), (0, SCREEN_HEIGHT-PLAYER_BOTTOM-14, SCREEN_WIDTH, PLAYER_BOTTOM))
     pygame.display.update()
+    print(score)
