@@ -96,6 +96,10 @@ while running:
             playerX += PLAYER_SPEED
         elif goingLeft:
             playerX -= PLAYER_SPEED
+    if playerX < 0:
+        playerX = 0
+    if playerX > SCREEN_WIDTH - PLAYER_WIDTH:
+        playerX = SCREEN_WIDTH - PLAYER_WIDTH
     
     if time.time() > armStateTimestamp + 1:
         armState = "opened"
@@ -120,8 +124,17 @@ while running:
                     objects.append(Object(random.randint(0, SCREEN_WIDTH - OBJECT_WIDTH), 0 - OBJECT_HEIGHT - (SCREEN_HEIGHT-object.y), type))
                     objects.remove(object)
                     score += 2
-                else:
-                    score -= 1
+                elif armState == "closed":
+                    type = random.randint(0, 2)
+                    if type == 0:
+                        type = "bomb"
+                    elif type == 1:
+                       type = "trash"
+                    else:
+                       type = "fruit"
+                    objects.append(Object(random.randint(0, SCREEN_WIDTH - OBJECT_WIDTH), 0 - OBJECT_HEIGHT - (SCREEN_HEIGHT-object.y), type))
+                    objects.remove(object)
+                    score -= 2
             elif object.type == "bomb":
                 running = False
             else:
@@ -136,10 +149,21 @@ while running:
                     objects.append(Object(random.randint(0, SCREEN_WIDTH - OBJECT_WIDTH), 0 - OBJECT_HEIGHT - (SCREEN_HEIGHT-object.y), type))
                     objects.remove(object)
                     score += 2
-                else:
-                    score -= 1
+                elif armState == "fire":
+                    type = random.randint(0, 2)
+                    if type == 0:
+                        type = "bomb"
+                    elif type == 1:
+                       type = "trash"
+                    else:
+                       type = "fruit"
+                    objects.append(Object(random.randint(0, SCREEN_WIDTH - OBJECT_WIDTH), 0 - OBJECT_HEIGHT - (SCREEN_HEIGHT-object.y), type))
+                    objects.remove(object)
+                    score -= 2
           #  objects.remove(object)
         if object.y >= SCREEN_HEIGHT:
+            if object.type == "fruit" or object.type == "trash":
+                score -= 1
             objects.remove(object)
             type = random.randint(0, 2)
             if type == 0:
