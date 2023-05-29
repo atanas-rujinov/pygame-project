@@ -3,6 +3,8 @@ import random
 import time
 
 pygame.init()
+pygame.font.init()
+font = pygame.font.SysFont('Comic Sans MS', 100)
 
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 800
@@ -10,14 +12,18 @@ SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 PLAYER_WIDTH = 50
 PLAYER_HEIGHT = 75
 PLAYER_BOTTOM = 75
-PLAYER_SPEED = 0.1
+PLAYER_SPEED = 0.5
 OBJECT_WIDTH = 50
 OBJECT_HEIGHT = 50
-OBJECT_SPEED = 0.1
 OBJECTS_DISTANCE = 200
 ACTUAL_HEIGHT = SCREEN_HEIGHT - PLAYER_BOTTOM - PLAYER_HEIGHT
 
+objectSpeed = 0.3
+
 score = 0
+scoreLastStep = 0
+
+textSurface = font.render(str(score), False, (0, 0, 0))
 
 playerX = SCREEN_WIDTH / 2 - PLAYER_WIDTH / 2
 running = True
@@ -25,6 +31,9 @@ goingLeft = False
 goingRight = False
 directionPriority = ""
 playerImage = pygame.image.load("opened.png")
+bombImage = pygame.image.load("bomb.png")
+trashImage = pygame.image.load("trash.png")
+fruitImage = pygame.image.load("fruit.png")
 
 class Object:
     def __init__(self, x, y, type):
@@ -42,7 +51,7 @@ armState = "opened"
 armStateTimestamp = time.time()
 
 def checkCollision(object):
-    if playerX < object.x + OBJECT_WIDTH and playerX + PLAYER_WIDTH > object.x and SCREEN_HEIGHT - PLAYER_BOTTOM - PLAYER_HEIGHT < object.y + OBJECT_HEIGHT and SCREEN_HEIGHT - PLAYER_BOTTOM > object.y:
+    if playerX < object.x + OBJECT_WIDTH and playerX + PLAYER_WIDTH > object.x and SCREEN_HEIGHT - PLAYER_BOTTOM - PLAYER_HEIGHT < object.y + OBJECT_HEIGHT and SCREEN_HEIGHT - PLAYER_BOTTOM - 44 > object.y + OBJECT_HEIGHT:
         return True
     else:
         return False
@@ -108,8 +117,14 @@ while running:
     SCREEN.fill((0, 0, 0))
 
     for object in objects:
-        pygame.draw.rect(SCREEN, object.color, (object.x, object.y, OBJECT_WIDTH, OBJECT_HEIGHT))
-        object.y += OBJECT_SPEED
+        if object.type == "bomb":
+            SCREEN.blit(bombImage, (object.x, object.y))
+        elif object.type == "trash":
+            SCREEN.blit(trashImage, (object.x, object.y))
+        else:
+            SCREEN.blit(fruitImage, (object.x, object.y))
+
+        object.y += objectSpeed
         
         if checkCollision(object):
             if object.type == "trash":
@@ -173,10 +188,40 @@ while running:
             else:
                 type = "fruit"
             objects.append(Object(random.randint(0, SCREEN_WIDTH - OBJECT_WIDTH), 0 - OBJECT_HEIGHT, type))
-
+    
+    
+    if score > scoreLastStep+3:
+        objectSpeed += 0.1
+        scoreLastStep = score
     
     SCREEN.blit(playerImage, (playerX, SCREEN_HEIGHT-PLAYER_HEIGHT-PLAYER_BOTTOM))
-   # pygame.draw.rect(SCREEN, (255, 0, 0), (playerX, SCREEN_HEIGHT-PLAYER_HEIGHT-PLAYER_BOTTOM, 50, 75))
-    pygame.draw.rect(SCREEN, (255,255,255), (0, SCREEN_HEIGHT-PLAYER_BOTTOM-14, SCREEN_WIDTH, PLAYER_BOTTOM))
+    pygame.draw.rect(SCREEN, (255,255,255), (0, SCREEN_HEIGHT-PLAYER_BOTTOM-14, SCREEN_WIDTH, PLAYER_BOTTOM+14))
+    textSurface = font.render("Score: " + str(score), True, (0, 0, 0))
+    SCREEN.blit(textSurface, (5, SCREEN_HEIGHT-PLAYER_BOTTOM-10))
     pygame.display.update()
     print(score)
+
+#print("Game over! Your score is: " + str(score) + "Enter your name:")
+pygame.draw.rect(SCREEN, (255,255,255), (0, SCREEN_HEIGHT-PLAYER_BOTTOM-14, SCREEN_WIDTH, PLAYER_BOTTOM+14))
+textSurface = font.render("Game over!", True, (0, 0, 0))
+SCREEN.blit(textSurface, (5, SCREEN_HEIGHT-PLAYER_BOTTOM-10))
+pygame.display.update()
+time.sleep(1)
+pygame.draw.rect(SCREEN, (255,255,255), (0, SCREEN_HEIGHT-PLAYER_BOTTOM-14, SCREEN_WIDTH, PLAYER_BOTTOM+14))
+textSurface = font.render("Score: " + str(score), True, (0, 0, 0))
+pygame.display.update()
+time.sleep(1)
+pygame.draw.rect(SCREEN, (255,255,255), (0, SCREEN_HEIGHT-PLAYER_BOTTOM-14, SCREEN_WIDTH, PLAYER_BOTTOM+14))
+textSurface = font.render("Enter your name:", True, (0, 0, 0))
+SCREEN.blit(textSurface, (5, SCREEN_HEIGHT-PLAYER_BOTTOM-10))
+pygame.display.update()
+
+
+
+name = input()
+with open("scores.txt", "a") as file:
+    file.write(name + " " + str(score) + "\n")
+print("Scoreboard:")
+with open("scores.txt", "r") as file:
+    for line in file:
+        print(line)
