@@ -1,6 +1,7 @@
 import pygame
 import random
 import time
+import re
 
 pygame.init()
 pygame.font.init()
@@ -55,6 +56,18 @@ def checkCollision(object):
         return True
     else:
         return False
+    
+
+def extract_username_and_score(string):
+    pattern = r"^([\w\s]+)\s+(\d+)$"
+    match = re.match(pattern, string)
+    
+    if match:
+        username = match.group(1)
+        score = int(match.group(2))
+        return username, score
+    else:
+        return None
 
 objects = []
 print(ACTUAL_HEIGHT / (OBJECTS_DISTANCE+OBJECT_HEIGHT))
@@ -215,13 +228,37 @@ pygame.draw.rect(SCREEN, (255,255,255), (0, SCREEN_HEIGHT-PLAYER_BOTTOM-14, SCRE
 textSurface = font.render("Enter your name:", True, (0, 0, 0))
 SCREEN.blit(textSurface, (5, SCREEN_HEIGHT-PLAYER_BOTTOM-10))
 pygame.display.update()
+name = "Enter your name:"
+startedToType = False
+typing = True
+anon = False
+while typing:
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                if startedToType == False:
+                    anon = True
+                typing = False
+            if startedToType == False:
+                name = ""
+                startedToType = True
+            elif event.key == pygame.K_BACKSPACE:
+                name = name[:-1]
+            else:
+                name += event.unicode
+    pygame.draw.rect(SCREEN, (255,255,255), (0, SCREEN_HEIGHT-PLAYER_BOTTOM-14, SCREEN_WIDTH, PLAYER_BOTTOM+14))
+    textSurface = font.render(name, True, (0, 0, 0))
+    SCREEN.blit(textSurface, (5, SCREEN_HEIGHT-PLAYER_BOTTOM-10))
+    pygame.display.update()
 
+if anon == False:
+    with open("scores.txt", "a") as file:
+        file.write(name[:-1] + " " + str(score) + "\n")
 
-
-name = input()
-with open("scores.txt", "a") as file:
-    file.write(name + " " + str(score) + "\n")
 print("Scoreboard:")
 with open("scores.txt", "r") as file:
     for line in file:
-        print(line)
+        result = extract_username_and_score(line)
+        if result:
+            username, score = result
+            print(f"{username} : {score}")
