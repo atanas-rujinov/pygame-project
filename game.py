@@ -202,6 +202,8 @@ while running:
                 type = "fruit"
             objects.append(Object(random.randint(0, SCREEN_WIDTH - OBJECT_WIDTH), 0 - OBJECT_HEIGHT, type))
     
+    if score < 0:
+        score = 0
     
     if score > scoreLastStep+3:
         objectSpeed += 0.1
@@ -251,13 +253,37 @@ while typing:
     SCREEN.blit(textSurface, (5, SCREEN_HEIGHT-PLAYER_BOTTOM-10))
     pygame.display.update()
 
+write_newline = True
+
 if anon == False:
-    with open("scores.txt", "a") as file:
-        file.write(name[:-1] + " " + str(score) + "\n")
+    write_newline = True  # Initialize the write_newline flag to True
+
+    with open("scores.txt", "r") as file:
+        lines = file.readlines()
+        modified_lines = []  # Store the modified lines here
+
+        for line in lines:
+            result = extract_username_and_score(line)
+            if result:
+                username, current_score = result
+                if username == name[:-1]:
+                    write_newline = False
+                    if current_score < score:
+                        line = line.replace(str(current_score), str(score))
+
+            modified_lines.append(line)  # Add the line to modified_lines
+
+    if write_newline:
+        modified_lines.append(name[:-1] + " " + str(score) + "\n")
+
+    with open("scores.txt", "w") as write_file:
+        write_file.writelines(modified_lines)
+
 
 print("Scoreboard:")
 with open("scores.txt", "r") as file:
-    for line in file:
+    lines = file.readlines()
+    for line in lines:
         result = extract_username_and_score(line)
         if result:
             username, score = result
