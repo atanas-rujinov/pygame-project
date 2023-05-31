@@ -1,4 +1,5 @@
 import pygame
+from pygame import mixer
 import random
 import time
 import re
@@ -7,19 +8,28 @@ pygame.init()
 pygame.font.init()
 font = pygame.font.SysFont('Comic Sans MS', 100)
 
+mixer.init()
+mixer.set_num_channels(2)
+mixer.Channel(0).play(mixer.Sound("Among Us Drip Theme Song Original (Among Us Trap Remix Amogus Meme Music) by Leonz.mp3"), -1)
+mixer.Channel(0).set_volume(1)
+mixer.Channel(1).set_volume(5)
+
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 800
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 PLAYER_WIDTH = 50
 PLAYER_HEIGHT = 75
 PLAYER_BOTTOM = 75
-PLAYER_SPEED = 0.5
+PLAYER_SPEED = 3
 OBJECT_WIDTH = 50
 OBJECT_HEIGHT = 50
 OBJECTS_DISTANCE = 200
 ACTUAL_HEIGHT = SCREEN_HEIGHT - PLAYER_BOTTOM - PLAYER_HEIGHT
 
-objectSpeed = 0.3
+FPS = 60
+
+objectSpeed = 3
+clock = pygame.time.Clock()
 
 score = 0
 scoreLastStep = 0
@@ -71,6 +81,42 @@ def extract_username_and_score(string):
 
 while True:
 
+    
+    
+    SCREEN_WIDTH = 600
+    SCREEN_HEIGHT = 800
+    SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    PLAYER_WIDTH = 50
+    PLAYER_HEIGHT = 75
+    PLAYER_BOTTOM = 75
+    PLAYER_SPEED = 3
+    OBJECT_WIDTH = 50
+    OBJECT_HEIGHT = 50
+    OBJECTS_DISTANCE = 200
+    ACTUAL_HEIGHT = SCREEN_HEIGHT - PLAYER_BOTTOM - PLAYER_HEIGHT
+
+    FPS = 60
+
+    objectSpeed = 3
+    clock = pygame.time.Clock()
+
+    score = 0
+    scoreLastStep = 0
+
+    textSurface = font.render(str(score), False, (0, 0, 0))
+
+    playerX = SCREEN_WIDTH / 2 - PLAYER_WIDTH / 2
+    running = True
+    goingLeft = False
+    goingRight = False
+    directionPriority = ""
+    playerImage = pygame.image.load("opened.png")
+    bombImage = pygame.image.load("bomb.png")
+    trashImage = pygame.image.load("trash.png")
+    fruitImage = pygame.image.load("fruit.png")
+
+
+
     objects = []
     print(ACTUAL_HEIGHT / (OBJECTS_DISTANCE+OBJECT_HEIGHT))
     for i in range(0, 4):
@@ -101,6 +147,7 @@ while True:
                     playerImage = pygame.image.load("closed.png")
                     armStateTimestamp = time.time()
                 elif event.key == pygame.K_UP:
+                    
                     armState = "fire"
                     playerImage = pygame.image.load("fire.png")
                     armStateTimestamp = time.time()
@@ -113,14 +160,14 @@ while True:
                     directionPriority = "left"
         if directionPriority == "left":
             if goingLeft:
-                playerX -= PLAYER_SPEED
+                playerX -= PLAYER_SPEED * clock.get_fps()  / FPS
             elif goingRight:
-                playerX += PLAYER_SPEED
+                playerX += PLAYER_SPEED * clock.get_fps()  / FPS
         elif directionPriority == "right":
             if goingRight:
-                playerX += PLAYER_SPEED
+                playerX += PLAYER_SPEED * clock.get_fps()  / FPS
             elif goingLeft:
-                playerX -= PLAYER_SPEED
+                playerX -= PLAYER_SPEED * clock.get_fps()  / FPS
         if playerX < 0:
             playerX = 0
         if playerX > SCREEN_WIDTH - PLAYER_WIDTH:
@@ -140,7 +187,7 @@ while True:
             else:
                 SCREEN.blit(fruitImage, (object.x, object.y))
 
-            object.y += objectSpeed
+            object.y += objectSpeed * clock.get_fps()  / FPS
             
             if checkCollision(object):
                 if object.type == "trash":
@@ -167,9 +214,11 @@ while True:
                         objects.remove(object)
                         score -= 2
                 elif object.type == "bomb":
+                    mixer.Channel(1).play(mixer.Sound("Vine boom sound effect [TubeRipper.com].mp3"))
                     running = False
                 else:
                     if armState == "closed":
+                        mixer.Channel(1).play(mixer.Sound("Eating sound effect LUCAS ARPON TV [TubeRipper.com].mp3"))
                         type = random.randint(0, 2)
                         if type == 0:
                             type = "bomb"
@@ -209,7 +258,8 @@ while True:
             score = 0
         
         if score > scoreLastStep+3:
-            objectSpeed += 0.1
+            objectSpeed += 1
+            PLAYER_SPEED += 1
             scoreLastStep = score
         
         SCREEN.blit(playerImage, (playerX, SCREEN_HEIGHT-PLAYER_HEIGHT-PLAYER_BOTTOM))
@@ -218,6 +268,8 @@ while True:
         SCREEN.blit(textSurface, (5, SCREEN_HEIGHT-PLAYER_BOTTOM-10))
         pygame.display.update()
         print(score)
+        print(clock.get_fps())
+        clock.tick(60)
 
     #print("Game over! Your score is: " + str(score) + "Enter your name:")
     pygame.draw.rect(SCREEN, (255,255,255), (0, SCREEN_HEIGHT-PLAYER_BOTTOM-14, SCREEN_WIDTH, PLAYER_BOTTOM+14))
