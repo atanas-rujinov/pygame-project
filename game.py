@@ -114,7 +114,7 @@ while True:
     bombImage = pygame.image.load("bomb.png")
     trashImage = pygame.image.load("trash.png")
     fruitImage = pygame.image.load("fruit.png")
-
+    background = pygame.image.load("background.jpeg")
 
 
     objects = []
@@ -134,7 +134,7 @@ while True:
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     goingLeft = True
@@ -177,7 +177,7 @@ while True:
             armState = "opened"
             playerImage = pygame.image.load("opened.png")
 
-        SCREEN.fill((255, 255, 255))
+        SCREEN.blit(background, (0, 0))
 
         for object in objects:
             if object.type == "bomb":
