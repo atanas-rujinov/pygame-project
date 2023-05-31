@@ -10,6 +10,7 @@ ROBOARM is a basic pygame game developed as part of a school project. The object
 -   Burn trash: Alongside bombs and apples, trash falls from the sky. The player can use the character's roboarm to burn the trash and earn additional points.
 -   Username and high score storage: The game saves players' usernames and their high scores in a file. This allows players to keep track of their progress and compete with others.
 -   Rank display: The game displays the player's rank based on their high score. Players can see how they compare to others who have played the game.
+-	The game does not feature any levels, power-ups or customizations, nor an online scoreboard
 
 ## Music
 
@@ -38,7 +39,9 @@ To run the game, follow these steps:
     
     `python roboarm.py` 
     
-5.  Enjoy the game: Once the game is running, use the arrow keys to move your character and dodge the bombs. Catch apples with Down Arrow to increase your score, and use the roboarm to burn falling trash with Up Arrow. Your username and high score will be saved automatically.
+5.  Enjoy the game: Once the game is running, use the arrow keys to move your character and dodge the bombs. Catch apples with Down Arrow to increase your score, and use the roboarm to burn falling trash with Up Arrow. Your username and high score will be saved automatically. Change the music by pressing M ;)
+
+Note: The game currently runs at a fixed frame rate of 60 frames per second (fps). This restriction ensures consistent gameplay experience across different systems.
 
 ## Acknowledgements
 
