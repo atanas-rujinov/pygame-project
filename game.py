@@ -20,7 +20,7 @@ SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 PLAYER_WIDTH = 50
 PLAYER_HEIGHT = 75
 PLAYER_BOTTOM = 75
-PLAYER_SPEED = 3
+PLAYER_SPEED = 100
 OBJECT_WIDTH = 50
 OBJECT_HEIGHT = 50
 OBJECTS_DISTANCE = 200
@@ -177,7 +177,7 @@ while True:
             armState = "opened"
             playerImage = pygame.image.load("opened.png")
 
-        SCREEN.fill((0, 0, 0))
+        SCREEN.fill((255, 255, 255))
 
         for object in objects:
             if object.type == "bomb":
